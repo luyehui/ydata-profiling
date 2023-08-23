@@ -52,6 +52,7 @@ def spark_describe_1d(
         vtype = {
             "float": "Numeric",
             "int": "Numeric",
+            "smallint": "Numeric",
             "bigint": "Numeric",
             "double": "Numeric",
             "string": "Categorical",
