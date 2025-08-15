@@ -169,7 +169,11 @@ def render_variables_section(
 
         bottom = None
         if "bottom" in template_variables and template_variables["bottom"] is not None:
-            btn = ToggleButton("More details", anchor_id=template_variables["varid"])
+            # Get translations for the button text
+            from ydata_profiling.utils.translations import get_translations
+            translations = get_translations(config.html.language)
+            
+            btn = ToggleButton(translations.get("more_details", "More details"), anchor_id=template_variables["varid"])
             bottom = Collapse(btn, template_variables["bottom"])
 
         var = Variable(
@@ -197,6 +201,10 @@ def get_duplicates_items(
     Returns:
         List of duplicates items to show in the interface.
     """
+    from ydata_profiling.utils.translations import get_translations
+    
+    translations = get_translations(config.html.language)
+    
     items: List[Renderable] = []
     if duplicates is not None and len(duplicates) > 0:
         if isinstance(duplicates, list):
@@ -216,7 +224,7 @@ def get_duplicates_items(
             items.append(
                 Duplicate(
                     duplicate=duplicates,
-                    name="Most frequently occurring",
+                    name=translations.get("most_frequently_occurring", "Most frequently occurring"),
                     anchor_id="duplicates",
                 )
             )
@@ -237,7 +245,7 @@ def get_definition_items(definitions: pd.DataFrame) -> Sequence[Renderable]:
         items.append(
             Duplicate(
                 duplicate=definitions,
-                name="Columns",
+                name=translations.get("columns", "Columns"),
                 anchor_id="definitions",
             )
         )
@@ -365,11 +373,15 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
     ) as pbar:
         alerts = summary.alerts
 
+        from ydata_profiling.utils.translations import get_translations
+        
+        translations = get_translations(config.html.language)
+        
         section_items: List[Renderable] = [
             Container(
                 get_dataset_items(config, summary, alerts),
                 sequence_type="overview_tabs",
-                name="Overview",
+                name=translations.get("overview", "Overview"),
                 anchor_id="overview",
                 oss=not bool(os.getenv("YDATA_SUPPRESS_BANNER", "")),
             ),
@@ -378,7 +390,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
         if len(summary.variables) > 0:
             section_items.append(
                 Dropdown(
-                    name="Variables",
+                    name=translations.get("variables", "Variables"),
                     anchor_id="variables-dropdown",
                     id="variables-dropdown",
                     is_row=False,
@@ -387,7 +399,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                     item=Container(
                         render_variables_section(config, summary),
                         sequence_type="accordion",
-                        name="Variables",
+                        name=translations.get("variables", "Variables"),
                         anchor_id="variables",
                     ),
                 )
@@ -399,7 +411,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     scatter_items,
                     sequence_type="tabs" if len(scatter_items) <= 10 else "select",
-                    name="Interactions",
+                    name=translations.get("interactions", "Interactions"),
                     anchor_id="interactions",
                 ),
             )
@@ -414,7 +426,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     missing_items,
                     sequence_type="tabs",
-                    name="Missing values",
+                    name=translations.get("missing_values", "Missing values"),
                     anchor_id="missing",
                 )
             )
@@ -425,7 +437,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     items=sample_items,
                     sequence_type="tabs",
-                    name="Sample",
+                    name=translations.get("sample", "Sample"),
                     anchor_id="sample",
                 )
             )
@@ -437,21 +449,25 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                     items=duplicate_items,
                     sequence_type="batch_grid",
                     batch_size=len(duplicate_items),
-                    name="Duplicate rows",
+                    name=translations.get("duplicate_rows", "Duplicate rows"),
                     anchor_id="duplicate",
                 )
             )
 
         sections = Container(
             section_items,
-            name="Root",
-            sequence_type="sections",
+                    name=translations.get("root", "Root"),
+        sequence_type="sections",
             full_width=config.html.full_width,
         )
         pbar.update()
 
+    # footer = HTML(
+    #     content='Report generated by <a href="https://ydata.ai/?utm_source=opensource&utm_medium=pandasprofiling&utm_campaign=report">YData</a>.'
+    # )
+
     footer = HTML(
-        content='Report generated by <a href="https://ydata.ai/?utm_source=opensource&utm_medium=pandasprofiling&utm_campaign=report">YData</a>.'
+        content=''
     )
 
     return Root("Root", sections, footer, style=config.html.style)

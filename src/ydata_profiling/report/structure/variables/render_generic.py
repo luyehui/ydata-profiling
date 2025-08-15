@@ -6,9 +6,15 @@ from ydata_profiling.report.presentation.core import (
     Table,
     VariableInfo,
 )
+from ydata_profiling.utils.translations import get_translations
+from ydata_profiling.model.alerts import get_alert_language
 
 
 def render_generic(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     info = VariableInfo(
         anchor_id=summary["varid"],
         alerts=summary["alerts"],
@@ -21,17 +27,17 @@ def render_generic(config: Settings, summary: dict) -> dict:
     table = Table(
         [
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },

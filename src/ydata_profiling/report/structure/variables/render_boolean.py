@@ -14,9 +14,14 @@ from ydata_profiling.report.presentation.core.renderable import Renderable
 from ydata_profiling.report.presentation.frequency_table_utils import freq_table
 from ydata_profiling.report.structure.variables.render_common import render_common
 from ydata_profiling.visualisation.plot import cat_frequency_plot
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_boolean(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     n_obs_bool = config.vars.bool.n_obs
     image_format = config.plot.image_format
@@ -37,27 +42,27 @@ def render_boolean(config: Settings, summary: dict) -> dict:
     table = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": "n_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": "p_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -79,7 +84,7 @@ def render_boolean(config: Settings, summary: dict) -> dict:
     items: List[Renderable] = [
         FrequencyTable(
             template_variables["freq_table_rows"],
-            name="Common Values (Table)",
+            name=t.get("common_values_table", "Common Values (Table)"),
             anchor_id=f"{varid}frequency_table",
             redact=False,
         )
@@ -106,7 +111,7 @@ def render_boolean(config: Settings, summary: dict) -> dict:
                         for idx, s in enumerate(summary["value_counts_without_nan"])
                     ],
                     anchor_id=f"{varid}cat_frequency_plot",
-                    name="Common Values (Plot)",
+                    name=t.get("common_values_plot", "Common Values (Plot)"),
                     sequence_type="batch_grid",
                     batch_size=len(config.html.style._labels),
                 )
@@ -120,7 +125,7 @@ def render_boolean(config: Settings, summary: dict) -> dict:
                     ),
                     image_format=image_format,
                     alt="Common Values (Plot)",
-                    name="Common Values (Plot)",
+                    name=t.get("common_values_plot", "Common Values (Plot)"),
                     anchor_id=f"{varid}cat_frequency_plot",
                 )
             )

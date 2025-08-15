@@ -30,6 +30,41 @@ def fmt_percent(value: float, edge_cases: bool = True) -> str:
     return f"{value*100:2.1f}%"
 
 
+# Global language setting for alerts
+_ALERT_LANGUAGE = "en"
+
+def set_alert_language(language: str):
+    """Set the global language for alert descriptions."""
+    global _ALERT_LANGUAGE
+    _ALERT_LANGUAGE = language
+
+
+def get_alert_language() -> str:
+    """Get the current global language for alert descriptions."""
+    return _ALERT_LANGUAGE
+
+def get_alert_translation(key: str, language: str = None, default: str = None) -> str:
+    """Get translation for alert descriptions.
+    
+    Args:
+        key: Translation key
+        language: Language code ("en" or "zh-CN"), if None uses global setting
+        default: Default text if translation not found
+        
+    Returns:
+        Translated text or default
+    """
+    if language is None:
+        language = get_alert_language()
+    
+    try:
+        from ydata_profiling.utils.translations import get_translations
+        translations = get_translations(language)
+        return translations.get(key, default or key)
+    except:
+        return default or key
+
+
 @unique
 class AlertType(Enum):
     """Alert types"""
@@ -117,6 +152,19 @@ class Alert:
 
     @property
     def alert_type_name(self) -> str:
+        # Try to get translation if available
+        try:
+            from ydata_profiling.utils.translations import get_translations
+            # Use global language setting
+            language = get_alert_language()
+            translations = get_translations(language)
+            translated = translations.get(self.alert_type.name.lower())
+            if translated:
+                return translated
+        except:
+            pass
+        
+        # Fallback to original formatting
         return self.alert_type.name.replace("_", " ").capitalize()
 
     @property
@@ -189,7 +237,10 @@ class ConstantAlert(Alert):
         )
 
     def _get_description(self) -> str:
-        return f"[{self.column_name}] has a constant value"
+        if get_alert_language() == "zh-CN":
+            return f"[{self.column_name}] 有常量值"
+        else:
+            return f"[{self.column_name}] has a constant value"
 
 
 class DuplicatesAlert(Alert):
@@ -208,10 +259,16 @@ class DuplicatesAlert(Alert):
         )
 
     def _get_description(self) -> str:
-        if self.values is not None:
-            return f"Dataset has {self.values['n_duplicates']} ({fmt_percent(self.values['p_duplicates'])}) duplicate rows"
+        if self.values is not None and 'n_duplicates' in self.values and 'p_duplicates' in self.values:
+            if get_alert_language() == "zh-CN":
+                return f"数据集有 {self.values['n_duplicates']} ({fmt_percent(self.values['p_duplicates'])}) 个重复行"
+            else:
+                return f"Dataset has {self.values['n_duplicates']} ({fmt_percent(self.values['p_duplicates'])}) duplicate rows"
         else:
-            return "Dataset has no duplicated rows"
+            if get_alert_language() == "zh-CN":
+                return "数据集没有重复行"
+            else:
+                return "Dataset has no duplicated rows"
 
 
 class NearDuplicatesAlert(Alert):
@@ -314,15 +371,41 @@ class HighCorrelationAlert(Alert):
         )
 
     def _get_description(self) -> str:
-        if self.values is not None:
-            description = f"[{self.column_name}] is highly {self.values['corr']} correlated with [{self.values['fields'][0]}]"
-            if len(self.values["fields"]) > 1:
-                description += f" and {len(self.values['fields']) - 1} other fields"
+        if self.values is not None and 'fields' in self.values and 'corr' in self.values:
+            if get_alert_language() == "zh-CN":
+                description = f"[{self.column_name}] 与 [{self.values['fields'][0]}] 高度{self.values['corr']}相关"
+                if len(self.values["fields"]) > 1:
+                    description += f" 和 {len(self.values['fields']) - 1} 个其他字段"
+            else:
+                description = f"[{self.column_name}] is highly {self.values['corr']} correlated with [{self.values['fields'][0]}]"
+                if len(self.values["fields"]) > 1:
+                    description += f" and {len(self.values['fields']) - 1} other fields"
         else:
-            return (
-                f"[{self.column_name}] has a high correlation with one or more colums"
-            )
+            if get_alert_language() == "zh-CN":
+                return f"[{self.column_name}] 与一个或多个列高度相关"
+            else:
+                return f"[{self.column_name}] has a high correlation with one or more colums"
         return description
+
+    def fmt(self) -> str:
+        """Override fmt method to provide translated tooltip for high correlation alerts."""
+        style = self._styles.get(self.alert_type.name.lower(), "secondary")
+        hint = ""
+
+        if self.values is not None:
+            num = len(self.values["fields"])
+            title = ", ".join(self.values["fields"])
+            corr = self.values["corr"]
+            
+            # 根据语言设置tooltip文本
+            if get_alert_language() == "zh-CN":
+                hint = f'data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="此变量与 {num} 个字段具有高 {corr} 相关性: {title}"'
+            else:
+                hint = f'data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="This variable has a high {corr} correlation with {num} fields: {title}"'
+
+        return (
+            f'<span class="badge text-bg-{style}" {hint}>{self.alert_type_name}</span>'
+        )
 
 
 class ImbalanceAlert(Alert):
@@ -386,10 +469,16 @@ class MissingAlert(Alert):
         )
 
     def _get_description(self) -> str:
-        if self.values is not None:
-            return f"[{self.column_name}] {self.values['n_missing']} ({fmt_percent(self.values['p_missing'])}) missing values"
+        if self.values is not None and 'n_missing' in self.values and 'p_missing' in self.values:
+            if get_alert_language() == "zh-CN":
+                return f"[{self.column_name}] 有 {self.values['n_missing']} ({fmt_percent(self.values['p_missing'])}) 个缺失值"
+            else:
+                return f"[{self.column_name}] {self.values['n_missing']} ({fmt_percent(self.values['p_missing'])}) missing values"
         else:
-            return f"[{self.column_name}] has missing values"
+            if get_alert_language() == "zh-CN":
+                return f"[{self.column_name}] 有缺失值"
+            else:
+                return f"[{self.column_name}] has missing values"
 
 
 class NonStationaryAlert(Alert):

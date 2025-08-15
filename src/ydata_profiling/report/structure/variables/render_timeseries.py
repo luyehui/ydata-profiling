@@ -21,24 +21,25 @@ from ydata_profiling.visualisation.plot import (
     plot_acf_pacf,
     plot_timeseries_gap_analysis,
 )
+from ydata_profiling.utils.translations import get_translations
 
 
 def _render_gap_tab(config: Settings, summary: dict) -> Container:
     gap_stats = [
         {
-            "name": "number of gaps",
+            "name": t.get("number_of_gaps", "number of gaps"),
             "value": fmt_numeric(
                 summary["gap_stats"]["n_gaps"], precision=config.report.precision
             ),
         },
         {
-            "name": "min",
+            "name": t.get("min", "min"),
             "value": fmt_timespan_timedelta(
                 summary["gap_stats"]["min"], precision=config.report.precision
             ),
         },
         {
-            "name": "max",
+            "name": t.get("max", "max"),
             "value": fmt_timespan_timedelta(
                 summary["gap_stats"]["max"], precision=config.report.precision
             ),
@@ -50,7 +51,7 @@ def _render_gap_tab(config: Settings, summary: dict) -> Container:
             ),
         },
         {
-            "name": "std",
+            "name": t.get("std", "std"),
             "value": fmt_timespan_timedelta(
                 summary["gap_stats"]["std"], precision=config.report.precision
             ),
@@ -59,7 +60,7 @@ def _render_gap_tab(config: Settings, summary: dict) -> Container:
 
     gap_table = Table(
         gap_stats,
-        name="Gap statistics",
+        name=t.get("gap_statistics", "Gap statistics"),
         style=config.html.style,
     )
 
@@ -76,12 +77,16 @@ def _render_gap_tab(config: Settings, summary: dict) -> Container:
         [gap_table, gap_plot],
         image_format=config.plot.image_format,
         sequence_type="grid",
-        name="Gap analysis",
+        name=t.get("gap_analysis", "Gap analysis"),
         anchor_id=f"{summary['varid']}_gap_analysis",
     )
 
 
 def render_timeseries(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     template_variables = render_common(config, summary)
     image_format = config.plot.image_format
@@ -100,32 +105,32 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
     table1 = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": "n_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": "p_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Infinite",
+                "name": t.get("infinite", "Infinite"),
                 "value": fmt(summary["n_infinite"]),
                 "alert": "n_infinite" in summary["alert_fields"],
             },
             {
-                "name": "Infinite (%)",
+                "name": t.get("infinite_percent", "Infinite (%)"),
                 "value": fmt_percent(summary["p_infinite"]),
                 "alert": "p_infinite" in summary["alert_fields"],
             },
@@ -136,34 +141,34 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
     table2 = Table(
         [
             {
-                "name": "Mean",
+                "name": t.get("mean", "Mean"),
                 "value": fmt_numeric(
                     summary["mean"], precision=config.report.precision
                 ),
                 "alert": False,
             },
             {
-                "name": "Minimum",
+                "name": t.get("minimum", "Minimum"),
                 "value": fmt_numeric(summary["min"], precision=config.report.precision),
                 "alert": False,
             },
             {
-                "name": "Maximum",
+                "name": t.get("maximum", "Maximum"),
                 "value": fmt_numeric(summary["max"], precision=config.report.precision),
                 "alert": False,
             },
             {
-                "name": "Zeros",
+                "name": t.get("zeros", "Zeros"),
                 "value": fmt(summary["n_zeros"]),
                 "alert": "n_zeros" in summary["alert_fields"],
             },
             {
-                "name": "Zeros (%)",
+                "name": t.get("zeros_percent", "Zeros (%)"),
                 "value": fmt_percent(summary["p_zeros"]),
                 "alert": "p_zeros" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -184,7 +189,7 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
     quantile_statistics = Table(
         [
             {
-                "name": "Minimum",
+                "name": t.get("minimum", "Minimum"),
                 "value": fmt_numeric(summary["min"], precision=config.report.precision),
             },
             {
@@ -192,15 +197,15 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
                 "value": fmt_numeric(summary["5%"], precision=config.report.precision),
             },
             {
-                "name": "Q1",
+                "name": t.get("q1", "Q1"),
                 "value": fmt_numeric(summary["25%"], precision=config.report.precision),
             },
             {
-                "name": "median",
+                "name": t.get("median", "median"),
                 "value": fmt_numeric(summary["50%"], precision=config.report.precision),
             },
             {
-                "name": "Q3",
+                "name": t.get("q3", "Q3"),
                 "value": fmt_numeric(summary["75%"], precision=config.report.precision),
             },
             {
@@ -208,84 +213,84 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
                 "value": fmt_numeric(summary["95%"], precision=config.report.precision),
             },
             {
-                "name": "Maximum",
+                "name": t.get("maximum", "Maximum"),
                 "value": fmt_numeric(summary["max"], precision=config.report.precision),
             },
             {
-                "name": "Range",
+                "name": t.get("range", "Range"),
                 "value": fmt_numeric(
                     summary["range"], precision=config.report.precision
                 ),
             },
             {
-                "name": "Interquartile range (IQR)",
+                "name": t.get("interquartile_range", "Interquartile range (IQR)"),
                 "value": fmt_numeric(summary["iqr"], precision=config.report.precision),
             },
         ],
-        name="Quantile statistics",
+        name=t.get("quantile_statistics", "Quantile statistics"),
         style=config.html.style,
     )
 
     descriptive_statistics = Table(
         [
             {
-                "name": "Standard deviation",
+                "name": t.get("standard_deviation", "Standard deviation"),
                 "value": fmt_numeric(summary["std"], precision=config.report.precision),
             },
             {
-                "name": "Coefficient of variation (CV)",
+                "name": t.get("coefficient_of_variation", "Coefficient of variation (CV)"),
                 "value": fmt_numeric(summary["cv"], precision=config.report.precision),
             },
             {
-                "name": "Kurtosis",
+                "name": t.get("kurtosis", "Kurtosis"),
                 "value": fmt_numeric(
                     summary["kurtosis"], precision=config.report.precision
                 ),
             },
             {
-                "name": "Mean",
+                "name": t.get("mean", "Mean"),
                 "value": fmt_numeric(
                     summary["mean"], precision=config.report.precision
                 ),
             },
             {
-                "name": "Median Absolute Deviation (MAD)",
+                "name": t.get("median_absolute_deviation", "Median Absolute Deviation (MAD)"),
                 "value": fmt_numeric(summary["mad"], precision=config.report.precision),
             },
             {
-                "name": "Skewness",
+                "name": t.get("skewness", "Skewness"),
                 "value": fmt_numeric(
                     summary["skewness"], precision=config.report.precision
                 ),
                 "class": "alert" if "skewness" in summary["alert_fields"] else "",
             },
             {
-                "name": "Sum",
+                "name": t.get("sum", "Sum"),
                 "value": fmt_numeric(summary["sum"], precision=config.report.precision),
             },
             {
-                "name": "Variance",
+                "name": t.get("variance", "Variance"),
                 "value": fmt_numeric(
                     summary["variance"], precision=config.report.precision
                 ),
             },
             {
-                "name": "Monotonicity",
+                "name": t.get("monotonicity", "Monotonicity"),
                 "value": fmt_monotonic(summary["monotonic"]),
             },
             {
-                "name": "Augmented Dickey-Fuller test p-value",
+                "name": t.get("augmented_dickey_fuller_test_p_value", "Augmented Dickey-Fuller test p-value"),
                 "value": fmt_numeric(summary["addfuller"]),
             },
         ],
-        name="Descriptive statistics",
+        name=t.get("descriptive_statistics", "Descriptive statistics"),
         style=config.html.style,
     )
 
     statistics = Container(
         [quantile_statistics, descriptive_statistics],
         anchor_id=f"{varid}statistics",
-        name="Statistics",
+        name=t.get("statistics", "Statistics"),
         sequence_type="grid",
     )
 
@@ -295,23 +300,23 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
             [x[0] for x in summary["histogram"]],
             [x[1] for x in summary["histogram"]],
         )
-        hist_caption = f"<strong>Histogram with fixed size bins</strong> (bins={len(summary['histogram'][0][1]) - 1})"
+        hist_caption = f"<strong>{t.get('histogram_fixed_bins_caption', 'Histogram with fixed size bins')}</strong> (bins={len(summary['histogram'][0][1]) - 1})"
     else:
         hist_data = histogram(config, *summary["histogram"])
-        hist_caption = f"<strong>Histogram with fixed size bins</strong> (bins={len(summary['histogram'][1]) - 1})"
+        hist_caption = f"<strong>{t.get('histogram_fixed_bins_caption', 'Histogram with fixed size bins')}</strong> (bins={len(summary['histogram'][1]) - 1})"
 
     hist = Image(
         hist_data,
         image_format=image_format,
         alt="Histogram",
         caption=hist_caption,
-        name="Histogram",
+        name=t.get("histogram", "Histogram"),
         anchor_id=f"{varid}histogram",
     )
 
     fq = FrequencyTable(
         template_variables["freq_table_rows"],
-        name="Common values",
+        name=t.get("common_values", "Common values"),
         anchor_id=f"{varid}common_values",
         redact=False,
     )
@@ -320,19 +325,19 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
         [
             FrequencyTable(
                 template_variables["firstn_expanded"],
-                name=f"Minimum {config.n_extreme_obs} values",
+                name=t.get("minimum_extreme_values", "Minimum {} values").format(config.n_extreme_obs),
                 anchor_id=f"{varid}firstn",
                 redact=False,
             ),
             FrequencyTable(
                 template_variables["lastn_expanded"],
-                name=f"Maximum {config.n_extreme_obs} values",
+                name=t.get("maximum_extreme_values", "Maximum {} values").format(config.n_extreme_obs),
                 anchor_id=f"{varid}lastn",
                 redact=False,
             ),
         ],
         sequence_type="tabs",
-        name="Extreme values",
+        name=t.get("extreme_values", "Extreme values"),
         anchor_id=f"{varid}extreme_values",
     )
 
@@ -341,7 +346,7 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
         image_format=image_format,
         alt="Autocorrelation",
         caption="<strong>ACF and PACF</strong>",
-        name="Autocorrelation",
+        name=t.get("autocorrelation", "Autocorrelation"),
         anchor_id=f"{varid}acf_pacf",
     )
 
@@ -349,7 +354,7 @@ def render_timeseries(config: Settings, summary: dict) -> dict:
         mini_ts_plot(config, summary["series"], figsize=(7, 3)),
         image_format=image_format,
         alt="Time-series plot",
-        name="Time-series",
+        name=t.get("time_series_var", "Time-series"),
         anchor_id=f"{varid}_ts_plot",
     )
 

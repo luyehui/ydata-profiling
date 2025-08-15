@@ -11,9 +11,14 @@ from ydata_profiling.report.presentation.core import (
 from ydata_profiling.report.presentation.frequency_table_utils import freq_table
 from ydata_profiling.report.structure.variables.render_file import render_file
 from ydata_profiling.visualisation.plot import scatter_series
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_image(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     n_freq_table_max = config.n_freq_table_max
     redact = config.vars.cat.redact
@@ -41,14 +46,14 @@ def render_image(config: Settings, summary: dict) -> dict:
                 Table(
                     [
                         {
-                            "name": "Min width",
+                            "name": t.get("min_width", "Min width"),
                             "value": fmt_numeric(
                                 summary["min_width"], precision=config.report.precision
                             ),
                             "alert": False,
                         },
                         {
-                            "name": "Median width",
+                            "name": t.get("median_width", "Median width"),
                             "value": fmt_numeric(
                                 summary["median_width"],
                                 precision=config.report.precision,
@@ -56,7 +61,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                             "alert": False,
                         },
                         {
-                            "name": "Max width",
+                            "name": t.get("max_width", "Max width"),
                             "value": fmt_numeric(
                                 summary["max_width"], precision=config.report.precision
                             ),
@@ -68,14 +73,14 @@ def render_image(config: Settings, summary: dict) -> dict:
                 Table(
                     [
                         {
-                            "name": "Min height",
+                            "name": t.get("min_height", "Min height"),
                             "value": fmt_numeric(
                                 summary["min_height"], precision=config.report.precision
                             ),
                             "alert": False,
                         },
                         {
-                            "name": "Median height",
+                            "name": t.get("median_height", "Median height"),
                             "value": fmt_numeric(
                                 summary["median_height"],
                                 precision=config.report.precision,
@@ -83,7 +88,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                             "alert": False,
                         },
                         {
-                            "name": "Max height",
+                            "name": t.get("max_height", "Max height"),
                             "value": fmt_numeric(
                                 summary["max_height"], precision=config.report.precision
                             ),
@@ -95,14 +100,14 @@ def render_image(config: Settings, summary: dict) -> dict:
                 Table(
                     [
                         {
-                            "name": "Min area",
+                            "name": t.get("min_area", "Min area"),
                             "value": fmt_numeric(
                                 summary["min_area"], precision=config.report.precision
                             ),
                             "alert": False,
                         },
                         {
-                            "name": "Median area",
+                            "name": t.get("median_area", "Median area"),
                             "value": fmt_numeric(
                                 summary["median_area"],
                                 precision=config.report.precision,
@@ -110,7 +115,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                             "alert": False,
                         },
                         {
-                            "name": "Max area",
+                            "name": t.get("max_area", "Max area"),
                             "value": fmt_numeric(
                                 summary["max_area"], precision=config.report.precision
                             ),
@@ -121,7 +126,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                 ),
             ],
             anchor_id=f"{varid}tbl",
-            name="Overview",
+            name=t.get("overview", "Overview"),
             sequence_type="grid",
         ),
         Image(
@@ -129,7 +134,7 @@ def render_image(config: Settings, summary: dict) -> dict:
             image_format=config.plot.image_format,
             alt="Scatter plot of image sizes",
             caption="Scatter plot of image sizes",
-            name="Scatter plot",
+            name=t.get("scatter_plot", "Scatter plot"),
             anchor_id=f"{varid}image_dimensions_scatter",
         ),
         FrequencyTable(
@@ -138,7 +143,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                 n=summary["n"],
                 max_number_to_print=n_freq_table_max,
             ),
-            name="Common values",
+            name=t.get("common_values", "Common values"),
             anchor_id=f"{varid}image_dimensions_frequency",
             redact=False,
         ),
@@ -147,7 +152,7 @@ def render_image(config: Settings, summary: dict) -> dict:
     image_shape = Container(
         image_shape_items,
         sequence_type="named_list",
-        name="Dimensions",
+        name=t.get("dimensions", "Dimensions"),
         anchor_id=f"{varid}image_dimensions",
     )
 
@@ -159,7 +164,7 @@ def render_image(config: Settings, summary: dict) -> dict:
                     n=summary["n"],
                     max_number_to_print=n_freq_table_max,
                 ),
-                name="Exif keys",
+                name=t.get("exif_keys", "Exif keys"),
                 anchor_id=f"{varid}exif_keys",
                 redact=redact,
             )
@@ -185,7 +190,7 @@ def render_image(config: Settings, summary: dict) -> dict:
             Container(
                 items,
                 anchor_id=f"{varid}exif_data",
-                name="Exif data",
+                name=t.get("exif_data", "Exif data"),
                 sequence_type="named_list",
             )
         )
@@ -194,7 +199,7 @@ def render_image(config: Settings, summary: dict) -> dict:
 
     image_tab = Container(
         image_items,
-        name="Image",
+        name=t.get("image", "Image"),
         sequence_type="tabs",
         anchor_id=f"{varid}image",
     )

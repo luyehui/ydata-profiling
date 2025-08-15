@@ -1,1 +1,1 @@
-<a href="#pp_var_{{ alert.anchor_id }}"><code>{{ alert.column_name }}</code></a> only contains datetime values, but is categorical. Consider applying <code>pd.to_datetime()</code>
+<a href="#pp_var_{{ alert.anchor_id }}"><code>{{ alert.column_name }}</code></a> {{ t.get('only_contains_datetime', 'only contains datetime values') }}, {{ t.get('but_is_categorical', 'but is categorical') }}. {{ t.get('consider_pd_to_datetime', 'Consider applying') }} <code>pd.to_datetime()</code>

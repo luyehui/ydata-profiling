@@ -2,7 +2,7 @@
     <div class="row">
 {% endif %}
     <select name="{{ name }}" id="{{ id }}" class = "{{ classes }}">
-        <option value="">Select Columns</option>
+        <option value="">{{ t.get('select_columns', 'Select Columns') }}</option>
         {% for item in items %}
             <option value="{{ item }}">
                 {{ item }}

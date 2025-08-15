@@ -14,9 +14,14 @@ from ydata_profiling.report.presentation.core import (
 )
 from ydata_profiling.report.structure.variables.render_common import render_common
 from ydata_profiling.visualisation.plot import histogram, mini_histogram
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_count(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     template_variables = render_common(config, summary)
     image_format = config.plot.image_format
 
@@ -33,22 +38,22 @@ def render_count(config: Settings, summary: dict) -> dict:
     table1 = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": False,
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": False,
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": False,
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": False,
             },
@@ -59,34 +64,34 @@ def render_count(config: Settings, summary: dict) -> dict:
     table2 = Table(
         [
             {
-                "name": "Mean",
+                "name": t.get("mean", "Mean"),
                 "value": fmt_numeric(
                     summary["mean"], precision=config.report.precision
                 ),
                 "alert": False,
             },
             {
-                "name": "Minimum",
+                "name": t.get("minimum", "Minimum"),
                 "value": fmt_numeric(summary["min"], precision=config.report.precision),
                 "alert": False,
             },
             {
-                "name": "Maximum",
+                "name": t.get("maximum", "Maximum"),
                 "value": fmt_numeric(summary["max"], precision=config.report.precision),
                 "alert": False,
             },
             {
-                "name": "Zeros",
+                "name": t.get("zeros", "Zeros"),
                 "value": fmt(summary["n_zeros"]),
                 "alert": False,
             },
             {
-                "name": "Zeros (%)",
+                "name": t.get("zeros_percent", "Zeros (%)"),
                 "value": fmt_percent(summary["p_zeros"]),
                 "alert": False,
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -109,15 +114,15 @@ def render_count(config: Settings, summary: dict) -> dict:
             histogram(config, *summary["histogram"]),
             image_format=image_format,
             alt="Histogram",
-            caption=f"<strong>Histogram with fixed size bins</strong> (bins={len(summary['histogram'][1]) - 1})",
-            name="Histogram",
+            caption=f"<strong>{t.get('histogram_fixed_bins_caption', 'Histogram with fixed size bins')}</strong> (bins={len(summary['histogram'][1]) - 1})",
+            name=t.get("histogram", "Histogram"),
             anchor_id="histogram",
         )
     ]
 
     fq = FrequencyTable(
         template_variables["freq_table_rows"],
-        name="Common values",
+        name=t.get("common_values", "Common values"),
         anchor_id="common_values",
         redact=False,
     )
@@ -126,26 +131,26 @@ def render_count(config: Settings, summary: dict) -> dict:
         [
             FrequencyTable(
                 template_variables["firstn_expanded"],
-                name=f"Minimum {config.n_extreme_obs} values",
+                name=t.get("minimum_n_values", "Minimum {n} values").format(n=config.n_extreme_obs),
                 anchor_id="firstn",
                 redact=False,
             ),
             FrequencyTable(
                 template_variables["lastn_expanded"],
-                name=f"Maximum {config.n_extreme_obs} values",
+                name=t.get("maximum_n_values", "Maximum {n} values").format(n=config.n_extreme_obs),
                 anchor_id="lastn",
                 redact=False,
             ),
         ],
         sequence_type="tabs",
-        name="Extreme values",
+        name=t.get("extreme_values", "Extreme values"),
         anchor_id="extreme_values",
     )
 
     template_variables["bottom"] = Container(
         [
             Container(
-                seqs, sequence_type="tabs", name="Histogram(s)", anchor_id="histograms"
+                seqs, sequence_type="tabs", name=t.get("histograms", "Histogram(s)"), anchor_id="histograms"
             ),
             fq,
             evs,

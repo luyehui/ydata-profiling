@@ -231,6 +231,9 @@ class Html(BaseModel):
 
     full_width: bool = False
 
+    # Language for the report (e.g., "en", "zh-CN")
+    language: str = "en"
+
 
 class Duplicates(BaseModel):
     head: int = 10

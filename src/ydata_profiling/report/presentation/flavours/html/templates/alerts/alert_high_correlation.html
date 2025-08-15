@@ -1,4 +1,4 @@
 <a href="#pp_var_{{ alert.anchor_id }}">
     <code>{{ alert.column_name }}</code>
-</a> is highly {{ alert.values['corr'] }} correlated with <code>{{ alert.values['fields'][0] }}</code> {% if alert.values['fields'] | length > 1 %} and <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{ alert.values['fields'] | join(', ') }}">{{ alert.values['fields'] | length - 1 }} other fields</span>{% endif %}
+</a> {{ t.get('is_highly', 'is highly') }} {{ alert.values['corr'] }} {{ t.get('correlated_with', 'correlated with') }} <code>{{ alert.values['fields'][0] }}</code> {% if alert.values['fields'] | length > 1 %} {{ t.get('and', 'and') }} <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{ alert.values['fields'] | join(', ') }}">{{ alert.values['fields'] | length - 1 }} {{ t.get('other_fields', 'other fields') }}</span>{% endif %}
 {# (ρ = {{ alert.values['correlation'] | fmt_numeric }}) #}

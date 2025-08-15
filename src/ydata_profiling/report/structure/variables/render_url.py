@@ -7,11 +7,16 @@ from ydata_profiling.report.presentation.core import (
     Table,
     VariableInfo,
 )
+from ydata_profiling.utils.translations import get_translations
 from ydata_profiling.report.presentation.frequency_table_utils import freq_table
 from ydata_profiling.report.structure.variables.render_common import render_common
 
 
 def render_url(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     n_freq_table_max = config.n_freq_table_max
 
@@ -30,37 +35,37 @@ def render_url(config: Settings, summary: dict) -> dict:
 
     full_frequency_table = FrequencyTable(
         template_variables["freq_table_rows"],
-        name="Full",
+        name=t.get("full", "Full"),
         anchor_id=f"{varid}full_frequency",
         redact=redact,
     )
     scheme_frequency_table = FrequencyTable(
         template_variables["freqtable_scheme"],
-        name="Scheme",
+        name=t.get("scheme", "Scheme"),
         anchor_id=f"{varid}scheme_frequency",
         redact=redact,
     )
     netloc_frequency_table = FrequencyTable(
         template_variables["freqtable_netloc"],
-        name="Netloc",
+        name=t.get("netloc", "Netloc"),
         anchor_id=f"{varid}netloc_frequency",
         redact=redact,
     )
     path_frequency_table = FrequencyTable(
         template_variables["freqtable_path"],
-        name="Path",
+        name=t.get("path", "Path"),
         anchor_id=f"{varid}path_frequency",
         redact=redact,
     )
     query_frequency_table = FrequencyTable(
         template_variables["freqtable_query"],
-        name="Query",
+        name=t.get("query", "Query"),
         anchor_id=f"{varid}query_frequency",
         redact=redact,
     )
     fragment_frequency_table = FrequencyTable(
         template_variables["freqtable_fragment"],
-        name="Fragment",
+        name=t.get("fragment", "Fragment"),
         anchor_id=f"{varid}fragment_frequency",
         redact=redact,
     )
@@ -74,7 +79,7 @@ def render_url(config: Settings, summary: dict) -> dict:
         fragment_frequency_table,
     ]
     template_variables["bottom"] = Container(
-        items, sequence_type="tabs", name="url stats", anchor_id=f"{varid}urlstats"
+        items, sequence_type="tabs", name=t.get("url_stats", "url stats"), anchor_id=f"{varid}urlstats"
     )
 
     # Element composition
@@ -90,27 +95,27 @@ def render_url(config: Settings, summary: dict) -> dict:
     table = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": "n_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": "p_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },

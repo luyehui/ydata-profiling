@@ -19,6 +19,10 @@ def get_correlation_items(
     Returns:
         List of correlation items to show in the interface.
     """
+    from ydata_profiling.utils.translations import get_translations
+    
+    translations = get_translations(config.html.language)
+    
     items: List[Renderable] = []
 
     key_to_data = {
@@ -51,7 +55,7 @@ def get_correlation_items(
             diagrams_grid = Container(
                 diagrams,
                 anchor_id=f"{key}_diagram_with_desc",
-                name="Heatmap" if config.correlation_table else name,
+                name=translations.get("heatmap", "Heatmap") if config.correlation_table else name,
                 sequence_type="batch_grid",
                 batch_size=len(config.html.style._labels),
             )
@@ -69,7 +73,7 @@ def get_correlation_items(
                 tables_tab = Container(
                     tables,
                     anchor_id=f"{key}_tables",
-                    name="Table",
+                    name=translations.get("table", "Table"),
                     sequence_type="batch_grid",
                     batch_size=len(config.html.style._labels),
                 )
@@ -90,13 +94,13 @@ def get_correlation_items(
                 image_format=image_format,
                 alt=name,
                 anchor_id=f"{key}_diagram",
-                name="Heatmap" if config.correlation_table else name,
+                name=translations.get("heatmap", "Heatmap") if config.correlation_table else name,
                 classes="correlation-diagram",
             )
 
             if config.correlation_table:
                 table = CorrelationTable(
-                    name="Table", correlation_matrix=item, anchor_id=f"{key}_table"
+                    name=translations.get("table", "Table"), correlation_matrix=item, anchor_id=f"{key}_table"
                 )
 
                 diagram_table_tabs = Container(
@@ -113,7 +117,7 @@ def get_correlation_items(
     corr = Container(
         items,
         sequence_type="tabs",
-        name="Correlations",
+        name=translations.get("correlations", "Correlations"),
         anchor_id="correlations_tab",
     )
 

@@ -424,6 +424,7 @@ class ProfileReport(SerializeReport, ExpectationsReport):
                 title=self.description_set.analysis.title,
                 date=self.description_set.analysis.date_start,
                 version=self.description_set.package["ydata_profiling_version"],
+                language=self.config.html.language,
             )
 
             if self.config.html.minify_html:

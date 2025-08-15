@@ -6,9 +6,14 @@ from ydata_profiling.report.presentation.core.renderable import Renderable
 from ydata_profiling.report.presentation.frequency_table_utils import freq_table
 from ydata_profiling.report.structure.variables.render_path import render_path
 from ydata_profiling.visualisation.plot import histogram
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_file(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
 
     template_variables = render_path(config, summary)
@@ -26,8 +31,8 @@ def render_file(config: Settings, summary: dict) -> dict:
                 histogram(config, *summary["histogram_file_size"]),
                 image_format=image_format,
                 alt="Size",
-                caption=f"<strong>Histogram with fixed size bins of file sizes (in bytes)</strong> (bins={len(summary['histogram_file_size'][1]) - 1})",
-                name="File size",
+                caption=f"<strong>{t.get('histogram_fixed_bins_file_sizes_caption', 'Histogram with fixed size bins of file sizes (in bytes)')}</strong> (bins={len(summary['histogram_file_size'][1]) - 1})",
+                name=t.get("file_size", "File size"),
                 anchor_id=f"{varid}file_size_histogram",
             )
         )
@@ -55,7 +60,7 @@ def render_file(config: Settings, summary: dict) -> dict:
 
     file_tab = Container(
         file_tabs,
-        name="File",
+        name=t.get("file", "File"),
         sequence_type="tabs",
         anchor_id=f"{varid}file",
     )

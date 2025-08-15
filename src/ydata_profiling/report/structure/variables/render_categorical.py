@@ -24,28 +24,33 @@ from ydata_profiling.report.presentation.core.renderable import Renderable
 from ydata_profiling.report.presentation.frequency_table_utils import freq_table
 from ydata_profiling.report.structure.variables.render_common import render_common
 from ydata_profiling.visualisation.plot import cat_frequency_plot, histogram
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_categorical_frequency(
     config: Settings, summary: dict, varid: str
 ) -> Renderable:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     frequency_table = Table(
         [
             {
-                "name": "Unique",
+                "name": t.get("unique", "Unique"),
                 "value": fmt_number(summary["n_unique"]),
                 "hint": help(
-                    "The number of unique values (all values that occur exactly once in the dataset)."
+                    t.get("unique_values_hint", "The number of unique values (all values that occur exactly once in the dataset).")
                 ),
                 "alert": "n_unique" in summary["alert_fields"],
             },
             {
-                "name": "Unique (%)",
+                "name": t.get("unique_percent", "Unique (%)"),
                 "value": fmt_percent(summary["p_unique"]),
                 "alert": "p_unique" in summary["alert_fields"],
             },
         ],
-        name="Unique",
+        name=t.get("unique", "Unique"),
         anchor_id=f"{varid}_unique_stats",
         style=config.html.style,
     )
@@ -56,32 +61,36 @@ def render_categorical_frequency(
 def render_categorical_length(
     config: Settings, summary: dict, varid: str
 ) -> Tuple[Renderable, Renderable]:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     length_table = Table(
         [
             {
-                "name": "Max length",
+                "name": t.get("max_length", "Max length"),
                 "value": fmt_number(summary["max_length"]),
                 "alert": False,
             },
             {
-                "name": "Median length",
+                "name": t.get("median_length", "Median length"),
                 "value": fmt_number(summary["median_length"]),
                 "alert": False,
             },
             {
-                "name": "Mean length",
+                "name": t.get("mean_length", "Mean length"),
                 "value": fmt_numeric(
                     summary["mean_length"], precision=config.report.precision
                 ),
                 "alert": False,
             },
             {
-                "name": "Min length",
+                "name": t.get("min_length", "Min length"),
                 "value": fmt_number(summary["min_length"]),
                 "alert": False,
             },
         ],
-        name="Length",
+        name=t.get("length", "Length"),
         anchor_id=f"{varid}lengthstats",
         style=config.html.style,
     )
@@ -99,8 +108,8 @@ def render_categorical_length(
         hist_data,
         image_format=config.plot.image_format,
         alt="length histogram",
-        name="Length",
-        caption="Histogram of lengths of the category",
+        name=t.get("length", "Length"),
+        caption=t.get("histogram_of_lengths_caption", "Histogram of lengths of the category"),
         anchor_id=f"{varid}length",
     )
 
@@ -119,6 +128,10 @@ def _get_n(value: Union[list, pd.DataFrame]) -> Union[int, List[int]]:
 def render_categorical_unicode(
     config: Settings, summary: dict, varid: str
 ) -> Tuple[Renderable, Renderable]:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     n_freq_table_max = config.n_freq_table_max
 
     category_overview = FrequencyTable(
@@ -127,7 +140,7 @@ def render_categorical_unicode(
             n=_get_n(summary["category_alias_counts"]),
             max_number_to_print=n_freq_table_max,
         ),
-        name="Most occurring categories",
+        name=t.get("most_occurring_categories", "Most occurring categories"),
         anchor_id=f"{varid}category_long_values",
         redact=False,
     )
@@ -154,7 +167,7 @@ def render_categorical_unicode(
         category_overview,
         Container(
             cats,
-            name="Most frequent character per category",
+            name=t.get("most_frequent_character_per_category", "Most frequent character per category"),
             sequence_type="batch_grid",
             anchor_id=f"{varid}categories",
             batch_size=1,
@@ -168,7 +181,7 @@ def render_categorical_unicode(
             n=_get_n(summary["script_counts"]),
             max_number_to_print=n_freq_table_max,
         ),
-        name="Most occurring scripts",
+        name=t.get("most_occurring_scripts", "Most occurring scripts"),
         anchor_id=f"{varid}script_values",
         redact=False,
     )
@@ -193,7 +206,7 @@ def render_categorical_unicode(
         script_overview,
         Container(
             scripts,
-            name="Most frequent character per script",
+            name=t.get("most_frequent_character_per_script", "Most frequent character per script"),
             sequence_type="batch_grid",
             anchor_id=f"{varid}scripts",
             batch_size=1,
@@ -207,7 +220,7 @@ def render_categorical_unicode(
             n=_get_n(summary["block_alias_counts"]),
             max_number_to_print=n_freq_table_max,
         ),
-        name="Most occurring blocks",
+        name=t.get("most_occurring_blocks", "Most occurring blocks"),
         anchor_id=f"{varid}block_alias_values",
         redact=False,
     )
@@ -230,7 +243,7 @@ def render_categorical_unicode(
         block_overview,
         Container(
             blocks,
-            name="Most frequent character per block",
+            name=t.get("most_frequent_character_per_block", "Most frequent character per block"),
             sequence_type="batch_grid",
             anchor_id=f"{varid}blocks",
             batch_size=1,
@@ -241,45 +254,45 @@ def render_categorical_unicode(
     overview_table = Table(
         [
             {
-                "name": "Total characters",
+                "name": t.get("total_characters", "Total characters"),
                 "value": fmt_number(summary["n_characters"]),
                 "alert": False,
             },
             {
-                "name": "Distinct characters",
+                "name": t.get("distinct_characters", "Distinct characters"),
                 "value": fmt_number(summary["n_characters_distinct"]),
                 "alert": False,
             },
             {
-                "name": "Distinct categories",
+                "name": t.get("distinct_categories", "Distinct categories"),
                 "value": fmt_number(summary["n_category"]),
                 "hint": help(
-                    title="Unicode categories (click for more information)",
+                    title=t.get("unicode_categories_tooltip", "Unicode categories (click for more information)"),
                     url="https://en.wikipedia.org/wiki/Unicode_character_property#General_Category",
                 ),
                 "alert": False,
             },
             {
-                "name": "Distinct scripts",
+                "name": t.get("distinct_scripts", "Distinct scripts"),
                 "value": fmt_number(summary["n_scripts"]),
                 "hint": help(
-                    title="Unicode scripts (click for more information)",
+                    title=t.get("unicode_scripts_tooltip", "Unicode scripts (click for more information)"),
                     url="https://en.wikipedia.org/wiki/Script_(Unicode)#List_of_scripts_in_Unicode",
                 ),
                 "alert": False,
             },
             {
-                "name": "Distinct blocks",
+                "name": t.get("distinct_blocks", "Distinct blocks"),
                 "value": fmt_number(summary["n_block_alias"]),
                 "hint": help(
-                    title="Unicode blocks (click for more information)",
+                    title=t.get("unicode_blocks_tooltip", "Unicode blocks (click for more information)"),
                     url="https://en.wikipedia.org/wiki/Unicode_block",
                 ),
                 "alert": False,
             },
         ],
-        name="Characters and Unicode",
-        caption="The Unicode Standard assigns character properties to each code point, which can be used to analyse textual variables. ",
+        name=t.get("characters_and_unicode", "Characters and Unicode"),
+        caption=t.get("unicode_standard_caption", "The Unicode Standard assigns character properties to each code point, which can be used to analyse textual variables."),
         style=config.html.style,
     )
 
@@ -292,30 +305,30 @@ def render_categorical_unicode(
                         n=summary["n_characters"],
                         max_number_to_print=n_freq_table_max,
                     ),
-                    name="Most occurring characters",
+                    name=t.get("most_occurring_characters", "Most occurring characters"),
                     anchor_id=f"{varid}character_frequency",
                     redact=config.vars.cat.redact,
                 ),
             ],
-            name="Characters",
+            name=t.get("characters", "Characters"),
             anchor_id=f"{varid}characters",
             sequence_type="named_list",
         ),
         Container(
             category_items,
-            name="Categories",
+            name=t.get("categories", "Categories"),
             anchor_id=f"{varid}categories",
             sequence_type="named_list",
         ),
         Container(
             script_items,
-            name="Scripts",
+            name=t.get("scripts", "Scripts"),
             anchor_id=f"{varid}scripts",
             sequence_type="named_list",
         ),
         Container(
             block_items,
-            name="Blocks",
+            name=t.get("blocks", "Blocks"),
             anchor_id=f"{varid}blocks",
             sequence_type="named_list",
         ),
@@ -323,13 +336,17 @@ def render_categorical_unicode(
 
     return overview_table, Container(
         citems,
-        name="Unicode",
+        name=t.get("unicode", "Unicode"),
         sequence_type="tabs",
         anchor_id=f"{varid}unicode",
     )
 
 
 def render_categorical(config: Settings, summary: dict) -> dict:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     n_obs_cat = config.vars.cat.n_obs
     image_format = config.plot.image_format
@@ -355,27 +372,27 @@ def render_categorical(config: Settings, summary: dict) -> dict:
     table = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": "n_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": "p_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -398,7 +415,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
 
     frequency_table = FrequencyTable(
         template_variables["freq_table_rows"],
-        name="Common Values",
+        name=t.get("common_values", "Common Values"),
         anchor_id=f"{varid}common_values",
         redact=config.vars.cat.redact,
     )
@@ -432,7 +449,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
                     }
                     for name, *value in zip(rows, *summary["first_rows"])
                 ],
-                name="Sample",
+                name=t.get("sample", "Sample"),
                 style=config.html.style,
             )
         else:
@@ -445,7 +462,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
                     }
                     for name, value in zip(rows, summary["first_rows"])
                 ],
-                name="Sample",
+                name=t.get("sample", "Sample"),
                 style=config.html.style,
             )
         overview_items.append(sample)
@@ -481,7 +498,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
                         for idx, s in enumerate(summary["value_counts_without_nan"])
                     ],
                     anchor_id=f"{varid}cat_frequency_plot",
-                    name="Common Values (Plot)",
+                    name=t.get("common_values_plot", "Common Values (Plot)"),
                     sequence_type="batch_grid",
                     batch_size=len(config.html.style._labels),
                 )
@@ -497,7 +514,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
                     ),
                     image_format=image_format,
                     alt="Common Values (Plot)",
-                    name="Common Values (Plot)",
+                    name=t.get("common_values_plot", "Common Values (Plot)"),
                     anchor_id=f"{varid}cat_frequency_plot",
                 )
             )
@@ -505,7 +522,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
     bottom_items = [
         Container(
             overview_items,
-            name="Overview",
+            name=t.get("overview", "Overview"),
             anchor_id=f"{varid}overview",
             sequence_type="batch_grid",
             batch_size=len(overview_items),
@@ -513,7 +530,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
         ),
         Container(
             string_items,
-            name="Categories",
+            name=t.get("categories", "Categories"),
             anchor_id=f"{varid}string",
             sequence_type="named_list"
             if len(config.html.style._labels) > 1
@@ -532,7 +549,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
 
         fqwo = FrequencyTable(
             woc,
-            name="Common words",
+            name=t.get("common_words", "Common words"),
             anchor_id=f"{varid}cwo",
             redact=config.vars.cat.redact,
         )
@@ -540,7 +557,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
         bottom_items.append(
             Container(
                 [fqwo],
-                name="Words",
+                name=t.get("words", "Words"),
                 anchor_id=f"{varid}word",
                 sequence_type="grid",
             )
@@ -551,7 +568,7 @@ def render_categorical(config: Settings, summary: dict) -> dict:
         bottom_items.append(
             Container(
                 [unitab],
-                name="Characters",
+                name=t.get("characters", "Characters"),
                 anchor_id=f"{varid}characters",
                 sequence_type="grid",
             )

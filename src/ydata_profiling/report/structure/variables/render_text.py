@@ -19,9 +19,14 @@ from ydata_profiling.report.structure.variables.render_categorical import (
 )
 from ydata_profiling.report.structure.variables.render_common import render_common
 from ydata_profiling.visualisation.plot import plot_word_cloud
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     if config.vars.text.redact:
         render = render_categorical(config, summary)
         return render
@@ -47,27 +52,27 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
     table = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": "n_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": "p_distinct" in summary["alert_fields"],
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": "n_missing" in summary["alert_fields"],
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": "p_missing" in summary["alert_fields"],
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -116,7 +121,7 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
                     }
                     for name, *value in zip(rows, *summary["first_rows"])
                 ],
-                name="Sample",
+                name=t.get("sample", "Sample"),
                 style=config.html.style,
             )
         else:
@@ -129,13 +134,13 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
                     }
                     for name, value in zip(rows, summary["first_rows"])
                 ],
-                name="Sample",
+                name=t.get("sample", "Sample"),
                 style=config.html.style,
             )
         overview_items.append(sample)
     overview = Container(
         overview_items,
-        name="Overview",
+        name=t.get("overview", "Overview"),
         anchor_id=f"{varid}overview",
         sequence_type="batch_grid",
         batch_size=len(overview_items),
@@ -152,7 +157,7 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
 
         fqwo = FrequencyTable(
             woc,
-            name="Common words",
+            name=t.get("common_words", "Common words"),
             anchor_id=f"{varid}cwo",
             redact=config.vars.text.redact,
         )
@@ -166,7 +171,7 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
         bottom_items.append(
             Container(
                 [fqwo, image],
-                name="Words",
+                name=t.get("words", "Words"),
                 anchor_id=f"{varid}word",
                 sequence_type="grid",
             )
@@ -176,7 +181,7 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
         bottom_items.append(
             Container(
                 [unitab],
-                name="Characters",
+                name=t.get("characters", "Characters"),
                 anchor_id=f"{varid}characters",
                 sequence_type="grid",
             )

@@ -1,6 +1,6 @@
 <div class="col-sm-12">
     <table class="table table-striped">
-        <p class="h4 item-header">Alerts</p>
+        <p class="h4 item-header">{{ t.get('alerts', 'Alerts') }}</p>
         {% if alerts is mapping %}
             <thead>
                 <tr>
@@ -17,14 +17,14 @@
                         {% for alert in value %}
                             <td>
                                 {% if not alert._is_empty %}
-                                    {% include 'alerts/alert_' + alert.alert_type.name | lower  + '.html'  %}
+                                    {% include 'alerts/alert_' + alert.alert_type.name | lower  + '.html' with context %}
                                 {% else %}
-                                    <em>Alert not present in this dataset</em>
+                                    <em>{{ t.get('alert_not_present', 'Alert not present in this dataset') }}</em>
                                 {% endif %}
                             </td>
                         {% endfor %}
                         <td>
-                            <span class="badge text-bg-{{ styles[a.alert_type.name | lower] }}">{{ a.alert_type_name | replace("_", " ") | capitalize }}</span>
+                            <span class="badge text-bg-{{ styles[a.alert_type.name | lower] }}">{{ t.get(a.alert_type.name.lower(), a.alert_type_name) }}</span>
                         </td>
                     </tr>
                 {% endif %}
@@ -34,10 +34,10 @@
                 {% if alert.alert_type.name != "REJECTED" %}
                     <tr>
                         <td>
-                            {% include 'alerts/alert_' + alert.alert_type.name | lower  + '.html'  %}
+                            {% include 'alerts/alert_' + alert.alert_type.name | lower  + '.html' with context %}
                         </td>
                         <td>
-                            <span class="badge text-bg-{{ styles[alert.alert_type.name | lower] }}">{{ alert.alert_type.name | replace("_", " ") | capitalize }}</span>
+                            <span class="badge text-bg-{{ styles[alert.alert_type.name | lower] }}">{{ t.get(alert.alert_type.name.lower(), alert.alert_type_name) }}</span>
                         </td>
                     </tr>
                 {% endif %}

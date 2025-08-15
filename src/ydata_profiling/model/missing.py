@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, Optional, Sized
 import pandas as pd
 
 from ydata_profiling.config import Settings
+from ydata_profiling.utils.translations import get_translations
 
 
 class MissingDataBackend:
@@ -66,24 +67,26 @@ def get_missing_active(config: Settings, table_stats: dict) -> Dict[str, Any]:
     Returns:
 
     """
+    # Get translations
+    t = get_translations(config.html.language)
 
     missing_map = {
         "bar": {
             "min_missing": 0,
-            "name": "Count",
-            "caption": "A simple visualization of nullity by column.",
+            "name": t.get("missing_count", "Count"),
+            "caption": t.get("missing_count_caption", "A simple visualization of nullity by column."),
             "function": MissingBar(),
         },
         "matrix": {
             "min_missing": 0,
-            "name": "Matrix",
-            "caption": "Nullity matrix is a data-dense display which lets you quickly visually pick out patterns in data completion.",
+            "name": t.get("missing_matrix", "Matrix"),
+            "caption": t.get("missing_matrix_caption", "Nullity matrix is a data-dense display which lets you quickly visually pick out patterns in data completion."),
             "function": MissingMatrix(),
         },
         "heatmap": {
             "min_missing": 2,
-            "name": "Heatmap",
-            "caption": "The correlation heatmap measures nullity correlation: how strongly the presence or absence of one variable affects the presence of another.",
+            "name": t.get("missing_heatmap", "Heatmap"),
+            "caption": t.get("missing_heatmap_caption", "The correlation heatmap measures nullity correlation: how strongly the presence or absence of one variable affects the presence of another."),
             "function": MissingHeatmap(),
         },
     }

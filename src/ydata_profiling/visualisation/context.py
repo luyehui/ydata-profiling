@@ -3,11 +3,85 @@ import warnings
 from typing import Any
 
 import matplotlib
+import matplotlib.font_manager as fm
 import seaborn as sns
 from pandas.plotting import (
     deregister_matplotlib_converters,
     register_matplotlib_converters,
 )
+
+
+def get_chinese_fonts():
+    """Get a list of fonts that support Chinese characters."""
+    import platform
+    import matplotlib.font_manager as fm
+    import os
+    
+    system = platform.system()
+    
+    if system == "Windows":
+        # Windows系统常见中文字体
+        fonts = [
+            "SimHei",  # 黑体 - 优先使用
+            "Microsoft YaHei",  # 微软雅黑
+            "SimSun",  # 宋体
+            "KaiTi",  # 楷体
+            "FangSong",  # 仿宋
+            "Arial Unicode MS",  # Arial Unicode
+        ]
+        
+        # 直接检查Windows字体文件
+        font_dir = r"C:\Windows\Fonts"
+        if os.path.exists(font_dir):
+            # 检查字体文件是否存在
+            font_files = {
+                "SimHei": ["simhei.ttf"],  # 优先检查SimHei
+                "Microsoft YaHei": ["msyh.ttc", "msyhbd.ttc"],
+                "SimSun": ["simsun.ttc", "simsun.ttf"],
+                "KaiTi": ["simkai.ttf"],
+                "FangSong": ["simfang.ttf"],
+            }
+            
+            available_fonts = []
+            for font_name, file_names in font_files.items():
+                for file_name in file_names:
+                    if os.path.exists(os.path.join(font_dir, file_name)):
+                        available_fonts.append(font_name)
+                        break
+            
+            if available_fonts:
+                return available_fonts
+    
+    elif system == "Darwin":  # macOS
+        # macOS系统常见中文字体
+        fonts = [
+            "PingFang SC",  # 苹方
+            "Hiragino Sans GB",  # 冬青黑体
+            "STHeiti",  # 华文黑体
+            "Arial Unicode MS",
+        ]
+    else:  # Linux
+        # Linux系统常见中文字体
+        fonts = [
+            "WenQuanYi Micro Hei",  # 文泉驿微米黑
+            "WenQuanYi Zen Hei",  # 文泉驿正黑
+            "Noto Sans CJK SC",  # Noto Sans 中文简体
+            "Noto Sans CJK TC",  # Noto Sans 中文繁体
+            "DejaVu Sans",
+        ]
+    
+    # 过滤出实际可用的字体
+    available_fonts = []
+    for font_name in fonts:
+        try:
+            font_path = fm.findfont(fm.FontProperties(family=font_name))
+            # 检查字体路径是否有效（不是默认回退字体）
+            if font_path and font_path != fm.rcParams['font.sans-serif'][0]:
+                available_fonts.append(font_name)
+        except:
+            continue
+    
+    return available_fonts
 
 
 @contextlib.contextmanager
@@ -36,12 +110,7 @@ def manage_matplotlib_context() -> Any:
         "axes.axisbelow": True,
         "image.cmap": "Greys",
         "font.family": ["sans-serif"],
-        "font.sans-serif": [
-            "Arial",
-            "Liberation Sans",
-            "Bitstream Vera Sans",
-            "sans-serif",
-        ],
+        "font.sans-serif": ["SimHei", "Microsoft YaHei", "Arial", "Liberation Sans", "Bitstream Vera Sans", "sans-serif"],
         "grid.linestyle": "-",
         "lines.solid_capstyle": "round",
         # Seaborn darkgrid parameters
@@ -71,12 +140,28 @@ def manage_matplotlib_context() -> Any:
         "xtick.major.pad": 7,
         "ytick.major.pad": 7,
         "backend": "agg",
+        "axes.unicode_minus": False,  # 确保Unicode字符正确显示
     }
 
     try:
         register_matplotlib_converters()
+        
+        # 先设置字体，确保不被覆盖
+        matplotlib.rcParams['font.family'] = ['sans-serif']
+        matplotlib.rcParams['font.sans-serif'] = ["SimHei", "Microsoft YaHei", "Arial", "Liberation Sans", "Bitstream Vera Sans", "sans-serif"]
+        matplotlib.rcParams['axes.unicode_minus'] = False
+        
+        # 更新其他参数
         matplotlib.rcParams.update(customRcParams)
+        
+        # 应用seaborn样式，但立即重新设置字体
         sns.set_style(style="white")
+        
+        # 再次强制设置字体，确保不被seaborn覆盖
+        matplotlib.rcParams['font.family'] = ['sans-serif']
+        matplotlib.rcParams['font.sans-serif'] = ["SimHei", "Microsoft YaHei", "Arial", "Liberation Sans", "Bitstream Vera Sans", "sans-serif"]
+        matplotlib.rcParams['axes.unicode_minus'] = False
+        
         yield
     finally:
         deregister_matplotlib_converters()  # revert to original unit registries

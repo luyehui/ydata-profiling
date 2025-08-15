@@ -1,1 +1,1 @@
-<a href="#pp_var_{{ alert.anchor_id }}"><code>{{ alert.column_name }}</code></a> has a high cardinality: {{ alert.values['n_distinct'] }} distinct values
+<a href="#pp_var_{{ alert.anchor_id }}"><code>{{ alert.column_name }}</code></a> {{ t.get('has_high_cardinality', 'has a high cardinality') }}: {{ alert.values['n_distinct'] }} {{ t.get('distinct_values', 'distinct values') }}

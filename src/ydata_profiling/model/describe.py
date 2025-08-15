@@ -171,6 +171,10 @@ def describe(
         )
         table_stats.update(metrics)
 
+        # Set alert language before creating alerts
+        from ydata_profiling.model.alerts import set_alert_language
+        set_alert_language(config.html.language)
+        
         alerts = progress(get_alerts, pbar, "Get alerts")(
             config, table_stats, series_description, correlations
         )

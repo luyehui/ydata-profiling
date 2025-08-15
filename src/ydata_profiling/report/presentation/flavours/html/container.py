@@ -6,7 +6,7 @@ from ydata_profiling.report.presentation.flavours.html import templates
 
 
 class HTMLContainer(Container):
-    def render(self) -> str:
+    def render(self, **kwargs) -> str:
         if self.sequence_type in ["list", "accordion"]:
             return templates.template("sequence/list.html").render(
                 anchor_id=self.content["anchor_id"], items=self.content["items"]
@@ -21,6 +21,7 @@ class HTMLContainer(Container):
                 anchor_id=self.content["anchor_id"],
                 nested=self.content["nested"],
                 oss=self.oss,
+                language=kwargs.get("language", "en"),
             )
         elif self.sequence_type == "tabs":
             return templates.template("sequence/tabs.html").render(

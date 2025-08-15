@@ -1,1 +1,1 @@
-Dataset has {{ alert.values['n_duplicates'] }} ({{ alert.values['p_duplicates'] | fmt_percent }}) <a href="#duplicate">duplicate rows</a>
+{{ t.get('dataset_has', 'Dataset has') }} {{ alert.values['n_duplicates'] }} ({{ alert.values['p_duplicates'] | fmt_percent }}) <a href="#duplicate">{{ t.get('duplicate_rows', 'duplicate rows') }}</a>

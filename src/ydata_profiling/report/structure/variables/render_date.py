@@ -9,9 +9,14 @@ from ydata_profiling.report.presentation.core import (
     VariableInfo,
 )
 from ydata_profiling.visualisation.plot import histogram, mini_histogram
+from ydata_profiling.utils.translations import get_translations
 
 
 def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
+    # Get translations
+    language = config.html.language
+    t = get_translations(language)
+    
     varid = summary["varid"]
     template_variables = {}
 
@@ -30,27 +35,27 @@ def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
     table1 = Table(
         [
             {
-                "name": "Distinct",
+                "name": t.get("distinct", "Distinct"),
                 "value": fmt(summary["n_distinct"]),
                 "alert": False,
             },
             {
-                "name": "Distinct (%)",
+                "name": t.get("distinct_percent", "Distinct (%)"),
                 "value": fmt_percent(summary["p_distinct"]),
                 "alert": False,
             },
             {
-                "name": "Missing",
+                "name": t.get("missing", "Missing"),
                 "value": fmt(summary["n_missing"]),
                 "alert": False,
             },
             {
-                "name": "Missing (%)",
+                "name": t.get("missing_percent", "Missing (%)"),
                 "value": fmt_percent(summary["p_missing"]),
                 "alert": False,
             },
             {
-                "name": "Memory size",
+                "name": t.get("memory_size", "Memory size"),
                 "value": fmt_bytesize(summary["memory_size"]),
                 "alert": False,
             },
@@ -60,15 +65,15 @@ def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
 
     table2 = Table(
         [
-            {"name": "Minimum", "value": fmt(summary["min"]), "alert": False},
-            {"name": "Maximum", "value": fmt(summary["max"]), "alert": False},
+            {"name": t.get("minimum", "Minimum"), "value": fmt(summary["min"]), "alert": False},
+            {"name": t.get("maximum", "Maximum"), "value": fmt(summary["max"]), "alert": False},
             {
-                "name": "Invalid dates",
+                "name": t.get("invalid_dates", "Invalid dates"),
                 "value": fmt(summary["n_invalid_dates"]),
                 "alert": False,
             },
             {
-                "name": "Invalid dates (%)",
+                "name": t.get("invalid_dates_percent", "Invalid dates (%)"),
                 "value": fmt_percent(summary["p_invalid_dates"]),
                 "alert": False,
             },
@@ -120,8 +125,8 @@ def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
                 hist_data,
                 image_format=image_format,
                 alt="Histogram",
-                caption=f"<strong>Histogram with fixed size bins</strong> (bins={n_bins})",
-                name="Histogram",
+                caption=f"<strong>{t.get('histogram_fixed_bins_caption', 'Histogram with fixed size bins')}</strong> (bins={n_bins})",
+                name=t.get("histogram", "Histogram"),
                 anchor_id=f"{varid}histogram",
             )
         ],

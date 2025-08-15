@@ -31,13 +31,32 @@ def _plot_word_cloud(
     series: Union[pd.Series, List[pd.Series]],
     figsize: tuple = (6, 4),
 ) -> plt.Figure:
+    import matplotlib.font_manager as fm
+    import matplotlib.pyplot as plt
+    
     if not isinstance(series, list):
         series = [series]
     plot = plt.figure(figsize=figsize)
     for i, series_data in enumerate(series):
         word_dict = series_data.to_dict()
+        # Get Chinese font path if not specified
+        font_path = config.plot.font_path
+        if font_path is None:
+            # Try to use SimHei directly
+            try:
+                font_path = fm.findfont(fm.FontProperties(family="SimHei"))
+                # Check if SimHei is actually found (not default fallback)
+                default_font_path = fm.findfont(fm.FontProperties(family=plt.rcParams['font.sans-serif'][0]))
+                if font_path == default_font_path:
+                    # SimHei not found, try Microsoft YaHei
+                    font_path = fm.findfont(fm.FontProperties(family="Microsoft YaHei"))
+                    if font_path == default_font_path:
+                        font_path = None
+            except:
+                font_path = None
+        
         wordcloud = WordCloud(
-            font_path=config.plot.font_path,
+            font_path=font_path,
             background_color="white",
             random_state=123,
             width=300,

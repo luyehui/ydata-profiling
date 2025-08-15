@@ -24,21 +24,26 @@ from ydata_profiling.visualisation.plot import plot_overview_timeseries
 
 
 def get_dataset_overview(config: Settings, summary: BaseDescription) -> Renderable:
+    from ydata_profiling.utils.translations import get_translations
+    
+    # Get translations
+    translations = get_translations(config.html.language)
+    
     table_metrics = [
         {
-            "name": "Number of variables",
+            "name": translations.get("number_of_variables", "Number of variables"),
             "value": fmt_number(summary.table["n_var"]),
         },
         {
-            "name": "Number of observations",
+            "name": translations.get("number_of_observations", "Number of observations"),
             "value": fmt_number(summary.table["n"]),
         },
         {
-            "name": "Missing cells",
+            "name": translations.get("missing_cells", "Missing cells"),
             "value": fmt_number(summary.table["n_cells_missing"]),
         },
         {
-            "name": "Missing cells (%)",
+            "name": translations.get("missing_cells_percent", "Missing cells (%)"),
             "value": fmt_percent(summary.table["p_cells_missing"]),
         },
     ]
@@ -46,11 +51,11 @@ def get_dataset_overview(config: Settings, summary: BaseDescription) -> Renderab
         table_metrics.extend(
             [
                 {
-                    "name": "Duplicate rows",
+                    "name": translations.get("duplicate_rows", "Duplicate rows"),
                     "value": fmt_number(summary.table["n_duplicates"]),
                 },
                 {
-                    "name": "Duplicate rows (%)",
+                    "name": translations.get("duplicate_rows_percent", "Duplicate rows (%)"),
                     "value": fmt_percent(summary.table["p_duplicates"]),
                 },
             ]
@@ -59,18 +64,18 @@ def get_dataset_overview(config: Settings, summary: BaseDescription) -> Renderab
         table_metrics.extend(
             [
                 {
-                    "name": "Total size in memory",
+                    "name": translations.get("total_size_in_memory", "Total size in memory"),
                     "value": fmt_bytesize(summary.table["memory_size"]),
                 },
                 {
-                    "name": "Average record size in memory",
+                    "name": translations.get("average_record_size_in_memory", "Average record size in memory"),
                     "value": fmt_bytesize(summary.table["record_size"]),
                 },
             ]
         )
 
     dataset_info = Table(
-        table_metrics, name="Dataset statistics", style=config.html.style
+        table_metrics, name=translations.get("dataset_statistics", "Dataset statistics"), style=config.html.style
     )
 
     dataset_types = Table(
@@ -81,19 +86,23 @@ def get_dataset_overview(config: Settings, summary: BaseDescription) -> Renderab
             }
             for type_name, count in summary.table["types"].items()
         ],
-        name="Variable types",
+        name=translations.get("variable_types", "Variable types"),
         style=config.html.style,
     )
 
     return Container(
         [dataset_info, dataset_types],
         anchor_id="dataset_overview",
-        name="Overview",
+        name=translations.get("overview", "Overview"),
         sequence_type="grid",
     )
 
 
 def get_dataset_schema(config: Settings, metadata: dict) -> Container:
+    from ydata_profiling.utils.translations import get_translations
+    
+    translations = get_translations(config.html.language)
+    
     about_dataset = []
     for key in ["description", "creator", "author"]:
         if key in metadata and len(metadata[key]) > 0:
@@ -131,12 +140,12 @@ def get_dataset_schema(config: Settings, metadata: dict) -> Container:
         [
             Table(
                 about_dataset,
-                name="Dataset",
+                name=translations.get("dataset", "Dataset"),
                 anchor_id="metadata_dataset",
                 style=config.html.style,
             )
         ],
-        name="Dataset",
+        name=translations.get("dataset", "Dataset"),
         anchor_id="dataset",
         sequence_type="grid",
     )
@@ -152,6 +161,9 @@ def get_dataset_reproduction(config: Settings, summary: BaseDescription) -> Rend
     Returns:
         A renderable object
     """
+    from ydata_profiling.utils.translations import get_translations, translate_text
+    
+    translations = get_translations(config.html.language)
 
     version = summary.package["ydata_profiling_version"]
     config_file = summary.package["ydata_profiling_config"]
@@ -169,20 +181,20 @@ def get_dataset_reproduction(config: Settings, summary: BaseDescription) -> Rend
 
     reproduction_table = Table(
         [
-            {"name": "Analysis started", "value": fmt(date_start)},
-            {"name": "Analysis finished", "value": fmt(date_end)},
-            {"name": "Duration", "value": fmt_timespan(duration)},
-            {"name": "Software version", "value": fmt_version(version)},
-            {"name": "Download configuration", "value": fmt_config(config_file)},
+            {"name": translate_text("analysis_started", config.html.language), "value": fmt(date_start)},
+            {"name": translate_text("analysis_finished", config.html.language), "value": fmt(date_end)},
+            {"name": translate_text("duration", config.html.language), "value": fmt_timespan(duration)},
+            # {"name": translate_text("Software version", config.html.language), "value": fmt_version(version)},
+            # {"name": translate_text("Download configuration", config.html.language), "value": fmt_config(config_file)},
         ],
-        name="Reproduction",
+        name=translations.get("reproduction", "Reproduction"),
         anchor_id="overview_reproduction",
         style=config.html.style,
     )
 
     return Container(
         [reproduction_table],
-        name="Reproduction",
+        name=translations.get("reproduction", "Reproduction"),
         anchor_id="reproduction",
         sequence_type="grid",
     )
@@ -198,6 +210,9 @@ def get_dataset_column_definitions(config: Settings, definitions: dict) -> Conta
     Returns:
         A container object
     """
+    from ydata_profiling.utils.translations import get_translations
+    
+    translations = get_translations(config.html.language)
 
     variable_descriptions = [
         Table(
@@ -205,7 +220,7 @@ def get_dataset_column_definitions(config: Settings, definitions: dict) -> Conta
                 {"name": column, "value": fmt(value)}
                 for column, value in definitions.items()
             ],
-            name="Variable descriptions",
+            name=translations.get("variable_descriptions", "Variable descriptions"),
             anchor_id="variable_definition_table",
             style=config.html.style,
         )
@@ -213,7 +228,7 @@ def get_dataset_column_definitions(config: Settings, definitions: dict) -> Conta
 
     return Container(
         variable_descriptions,
-        name="Variables",
+        name=translations.get("variables", "Variables"),
         anchor_id="variable_descriptions",
         sequence_type="grid",
     )
@@ -229,6 +244,14 @@ def get_dataset_alerts(config: Settings, alerts: list) -> Alerts:
     Returns:
         Alerts renderable object
     """
+    from ydata_profiling.utils.translations import get_translations
+    from ydata_profiling.model.alerts import set_alert_language
+    
+    # Set global language for alerts
+    set_alert_language(config.html.language)
+    
+    translations = get_translations(config.html.language)
+    
     # add up alerts from multiple reports
     if isinstance(alerts, tuple):
         count = 0
@@ -258,7 +281,7 @@ def get_dataset_alerts(config: Settings, alerts: list) -> Alerts:
 
         return Alerts(
             alerts=combined_alerts,
-            name=f"Alerts ({count})",
+            name=f"{translations.get('alerts', 'Alerts')} ({count})",
             anchor_id="alerts",
             style=config.html.style,
         )
@@ -266,13 +289,17 @@ def get_dataset_alerts(config: Settings, alerts: list) -> Alerts:
     count = len([alert for alert in alerts if alert.alert_type != AlertType.REJECTED])
     return Alerts(
         alerts=alerts,
-        name=f"Alerts ({count})",
+        name=f"{translations.get('alerts', 'Alerts')} ({count})",
         anchor_id="alerts",
         style=config.html.style,
     )
 
 
 def get_timeseries_items(config: Settings, summary: BaseDescription) -> Container:
+    from ydata_profiling.utils.translations import get_translations
+    
+    translations = get_translations(config.html.language)
+    
     @list_args
     def fmt_tsindex_limit(limit: Any) -> str:
         if isinstance(limit, datetime):
@@ -304,7 +331,7 @@ def get_timeseries_items(config: Settings, summary: BaseDescription) -> Containe
         },
     ]
 
-    ts_info = Table(table_stats, name="Timeseries statistics", style=config.html.style)
+    ts_info = Table(table_stats, name=translations.get("timeseries_statistics", "Timeseries statistics"), style=config.html.style)
 
     dpi_bak = config.plot.dpi
     config.plot.dpi = 300
@@ -312,14 +339,14 @@ def get_timeseries_items(config: Settings, summary: BaseDescription) -> Containe
         plot_overview_timeseries(config, summary.variables),
         image_format=config.plot.image_format,
         alt="ts_plot",
-        name="Original",
+        name=translations.get("original", "Original"),
         anchor_id="ts_plot_overview",
     )
     timeseries_scaled = ImageWidget(
         plot_overview_timeseries(config, summary.variables, scale=True),
         image_format=config.plot.image_format,
         alt="ts_plot_scaled",
-        name="Scaled",
+        name=translations.get("scaled", "Scaled"),
         anchor_id="ts_plot_scaled_overview",
     )
     config.plot.dpi = dpi_bak
@@ -333,7 +360,7 @@ def get_timeseries_items(config: Settings, summary: BaseDescription) -> Containe
     return Container(
         [ts_info, ts_tab],
         anchor_id="timeseries_overview",
-        name="Time Series",
+        name=translations.get("time_series", "Time Series"),
         sequence_type="grid",
     )
 
